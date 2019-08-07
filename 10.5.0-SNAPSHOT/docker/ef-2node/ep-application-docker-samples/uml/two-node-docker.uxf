@@ -4,31 +4,31 @@
   <element>
     <id>UMLDeployment</id>
     <coordinates>
-      <x>200</x>
+      <x>50</x>
       <y>70</y>
       <w>290</w>
       <h>240</h>
     </coordinates>
-    <panel_attributes>Container A.ef-2node-app
+    <panel_attributes>Container A.pd-test-app
 Hostname A.example.com</panel_attributes>
     <additional_attributes/>
   </element>
   <element>
     <id>UMLGeneric</id>
     <coordinates>
-      <x>210</x>
+      <x>60</x>
       <y>130</y>
       <w>260</w>
       <h>60</h>
     </coordinates>
-    <panel_attributes>Node A.ef-2node-app
+    <panel_attributes>Node A.pd-test-app
 fg=blue</panel_attributes>
     <additional_attributes/>
   </element>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>290</x>
+      <x>140</x>
       <y>330</y>
       <w>360</w>
       <h>40</h>
@@ -40,7 +40,7 @@ example.com Docker network</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>220</x>
+      <x>70</x>
       <y>180</y>
       <w>100</w>
       <h>190</h>
@@ -54,7 +54,7 @@ lt=.</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>200</x>
+      <x>50</x>
       <y>330</y>
       <w>120</w>
       <h>40</h>
@@ -65,33 +65,33 @@ lt=.</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>290</x>
+      <x>240</x>
       <y>180</y>
-      <w>190</w>
-      <h>190</h>
+      <w>90</w>
+      <h>110</h>
     </coordinates>
     <panel_attributes>discovery
 port
 54321
 lt=.</panel_attributes>
-    <additional_attributes>110.0;10.0;110.0;90.0;10.0;170.0</additional_attributes>
+    <additional_attributes>10.0;10.0;10.0;90.0</additional_attributes>
   </element>
   <element>
     <id>UMLGeneric</id>
     <coordinates>
-      <x>540</x>
+      <x>390</x>
       <y>130</y>
       <w>260</w>
       <h>60</h>
     </coordinates>
-    <panel_attributes>Node B.ef-2node-app
+    <panel_attributes>Node B.pd-test-app
 fg=blue</panel_attributes>
     <additional_attributes/>
   </element>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>630</x>
+      <x>480</x>
       <y>330</y>
       <w>140</w>
       <h>40</h>
@@ -102,8 +102,8 @@ fg=blue</panel_attributes>
   <element>
     <id>UMLDeployment</id>
     <coordinates>
-      <x>170</x>
-      <y>20</y>
+      <x>10</x>
+      <y>10</y>
       <w>690</w>
       <h>380</h>
     </coordinates>
@@ -114,7 +114,7 @@ fg=blue</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>290</x>
+      <x>140</x>
       <y>180</y>
       <w>110</w>
       <h>190</h>
@@ -133,19 +133,19 @@ lt=.</panel_attributes>
   <element>
     <id>UMLDeployment</id>
     <coordinates>
-      <x>530</x>
+      <x>380</x>
       <y>70</y>
       <w>290</w>
       <h>240</h>
     </coordinates>
-    <panel_attributes>Container B.ef-2node-app
+    <panel_attributes>Container B.pd-test-app
 Hostname B.example.com</panel_attributes>
     <additional_attributes/>
   </element>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>550</x>
+      <x>400</x>
       <y>180</y>
       <w>100</w>
       <h>190</h>
@@ -159,7 +159,7 @@ lt=.</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>620</x>
+      <x>470</x>
       <y>180</y>
       <w>110</w>
       <h>190</h>
@@ -178,15 +178,39 @@ lt=.</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>620</x>
+      <x>570</x>
       <y>180</y>
-      <w>190</w>
-      <h>190</h>
+      <w>90</w>
+      <h>110</h>
     </coordinates>
     <panel_attributes>discovery
 port
 54321
 lt=.</panel_attributes>
-    <additional_attributes>110.0;10.0;110.0;90.0;10.0;170.0</additional_attributes>
+    <additional_attributes>10.0;10.0;10.0;90.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>220</x>
+      <y>270</y>
+      <w>70</w>
+      <h>30</h>
+    </coordinates>
+    <panel_attributes>firewall
+fg=red</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>550</x>
+      <y>270</y>
+      <w>70</w>
+      <h>30</h>
+    </coordinates>
+    <panel_attributes>firewall
+fg=red</panel_attributes>
+    <additional_attributes/>
   </element>
 </diagram>
