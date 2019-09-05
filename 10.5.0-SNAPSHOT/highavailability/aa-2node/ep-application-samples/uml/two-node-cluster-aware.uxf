@@ -50,18 +50,6 @@ fg=blue</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>210</x>
-      <y>90</y>
-      <w>110</w>
-      <h>90</h>
-    </coordinates>
-    <panel_attributes>lt=&lt;&lt;-
-Primary</panel_attributes>
-    <additional_attributes>10.0;70.0;70.0;10.0</additional_attributes>
-  </element>
-  <element>
-    <id>Relation</id>
-    <coordinates>
       <x>200</x>
       <y>310</y>
       <w>190</w>
@@ -114,29 +102,5 @@ Network</panel_attributes>
     </coordinates>
     <panel_attributes/>
     <additional_attributes>50.0;20.0;10.0;20.0</additional_attributes>
-  </element>
-  <element>
-    <id>Relation</id>
-    <coordinates>
-      <x>320</x>
-      <y>90</y>
-      <w>110</w>
-      <h>90</h>
-    </coordinates>
-    <panel_attributes>lt=&lt;&lt;.
-Standby</panel_attributes>
-    <additional_attributes>60.0;70.0;10.0;10.0</additional_attributes>
-  </element>
-  <element>
-    <id>UMLGeneric</id>
-    <coordinates>
-      <x>230</x>
-      <y>50</y>
-      <w>150</w>
-      <h>50</h>
-    </coordinates>
-    <panel_attributes>symbol=artifact
-Filesystem</panel_attributes>
-    <additional_attributes/>
   </element>
 </diagram>
