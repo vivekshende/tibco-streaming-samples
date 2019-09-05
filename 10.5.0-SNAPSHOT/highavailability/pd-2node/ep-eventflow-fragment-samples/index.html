@@ -8,7 +8,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="generator" content="Apache Maven Doxia Site Renderer 1.9.1" />
-    <title>Native : NAR - EventFlow calling C++ &#x2013; Native : NAR - EventFlow calling C++</title>
+    <title>Java : Java Function &#x2013; Java : Java Function</title>
     <link rel="stylesheet" href="./css/apache-maven-fluido-1.8.min.css" />
     <link rel="stylesheet" href="./css/site.css" />
     <link rel="stylesheet" href="./css/print.css" media="print" />
@@ -18,7 +18,7 @@
     <div class="container-fluid">
       <header>
         <div id="banner">
-          <div class="pull-left"><div id="bannerLeft"><h2>Native : NAR - EventFlow calling C++</h2>
+          <div class="pull-left"><div id="bannerLeft"><h2>Java : Java Function</h2>
 </div>
 </div>
           <div class="pull-right"></div>
@@ -56,165 +56,31 @@
           </div>
         </header>
         <main id="bodyColumn"  class="span10" >
-<h1>Native : NAR - EventFlow calling C++</h1>
-<p>This sample describes how to use a Native ARchive (.nar) dependency in an EventFlow project.</p>
-<ul>
-
-<li><a href="#declare-the-nar-as-a-dependency">Declare the NAR as a dependency</a></li>
-<li><a href="#declare-a-java-wrapper-class">Declare a java wrapper class</a></li>
-<li><a href="#provide-a-engine-configuration-for-eventflow-use">Provide a engine configuration for EventFlow use</a></li>
-<li><a href="#using-in-eventflow">Using in EventFlow</a></li>
-<li><a href="#building-this-sample-from-tibco-streambase-studio-trade-and-running-the-unit-test-cases">Building this sample from TIBCO StreamBase Studio&#x2122; and running the unit test cases</a></li>
-<li><a href="#building-this-sample-from-the-command-line-and-running-the-unit-test-cases">Building this sample from the command line and running the unit test cases</a></li>
-</ul>
-<p><a name="declare-the-nar-as-a-dependency"></a></p><section>
-<h2><a name="Declare_the_NAR_as_a_dependency"></a>Declare the NAR as a dependency</h2>
-<p>A NAR can be used in the same way as any other maven dependency, except that a platform-specific classifier should be specified :</p>
-
-<div>
-<div>
-<pre class="source">                &lt;dependency&gt;
-                    &lt;groupId&gt;com.tibco.ep.samples.nativelibrary&lt;/groupId&gt;
-                    &lt;artifactId&gt;nar-cpplib&lt;/artifactId&gt;
-                    &lt;version&gt;1.0.0&lt;/version&gt;
-                    &lt;type&gt;nar&lt;/type&gt;
-                    &lt;classifier&gt;amd64-Linux-gpp-jni&lt;/classifier&gt;
-                &lt;/dependency&gt;
-</pre></div></div>
-
-<p>In many situations, cross-platform development is required ( for example develop on desktop OS/X but test on Linux servers ) - this can be achieved with maven profiles :</p>
-
-<div>
-<div>
-<pre class="source">    &lt;!-- Import platform specific NAR dependency --&gt;
-    &lt;profiles&gt;
-        &lt;profile&gt;
-            &lt;id&gt;linux profile&lt;/id&gt;
-            &lt;activation&gt;
-                &lt;os&gt;&lt;name&gt;linux&lt;/name&gt;&lt;/os&gt;
-            &lt;/activation&gt;
-            &lt;dependencies&gt;
-                &lt;dependency&gt;
-                    &lt;groupId&gt;com.tibco.ep.samples.nativelibrary&lt;/groupId&gt;
-                    &lt;artifactId&gt;nar-cpplib&lt;/artifactId&gt;
-                    &lt;version&gt;1.0.0&lt;/version&gt;
-                    &lt;type&gt;nar&lt;/type&gt;
-                    &lt;classifier&gt;amd64-Linux-gpp-jni&lt;/classifier&gt;
-                &lt;/dependency&gt;
-            &lt;/dependencies&gt;
-        &lt;/profile&gt;
-        &lt;profile&gt;
-            &lt;id&gt;mac profile&lt;/id&gt;
-            &lt;activation&gt;
-                &lt;os&gt;&lt;name&gt;mac os x&lt;/name&gt;&lt;/os&gt;
-            &lt;/activation&gt;
-            &lt;dependencies&gt;
-                &lt;dependency&gt;
-                    &lt;groupId&gt;com.tibco.ep.samples.nativelibrary&lt;/groupId&gt;
-                    &lt;artifactId&gt;nar-cpplib&lt;/artifactId&gt;
-                    &lt;version&gt;1.0.0&lt;/version&gt;
-                    &lt;type&gt;nar&lt;/type&gt;
-                    &lt;classifier&gt;x86_64-MacOSX-gpp-jni&lt;/classifier&gt;
-                &lt;/dependency&gt;
-            &lt;/dependencies&gt;
-        &lt;/profile&gt;
-        &lt;profile&gt;
-            &lt;id&gt;windows profile&lt;/id&gt;
-            &lt;activation&gt;
-                &lt;property&gt;
-                    &lt;name&gt;path.separator&lt;/name&gt;
-                    &lt;value&gt;;&lt;/value&gt;
-                &lt;/property&gt;
-            &lt;/activation&gt;
-            &lt;dependencies&gt;
-                &lt;dependency&gt;
-                    &lt;groupId&gt;com.tibco.ep.samples.nativelibrary&lt;/groupId&gt;
-                    &lt;artifactId&gt;nar-cpplib&lt;/artifactId&gt;
-                    &lt;version&gt;1.0.0&lt;/version&gt;
-                    &lt;type&gt;nar&lt;/type&gt;
-                    &lt;classifier&gt;amd64-Windows-msvc-jni&lt;/classifier&gt;
-                &lt;/dependency&gt;
-            &lt;/dependencies&gt;
-        &lt;/profile&gt;
-    &lt;/profiles&gt;
-
-</pre></div></div>
-
-<p><a name="declare-a-java-wrapper-class"></a></p></section><section>
-<h2><a name="Declare_a_java_wrapper_class"></a>Declare a java wrapper class</h2>
-<p>A java wrapper class is required to load the native shared library and provide JNI access :</p>
-
-<div>
-<div>
-<pre class="source">package com.tibco.ep.samples.nativelibrary.narcpplib;
-
-/**
- * c++ utility functions
- */
-public class CallCpp {
-
-    static {
-        //
-        // Don't need the native part when we're typechecking in studio
-        //
-        if (System.getProperty(&quot;streambase.ide.is-running&quot;) == null) {
-            System.loadLibrary(&quot;nar-cpplib-1.0.0&quot;);
-            System.out.println(&quot;loaded shared lib&quot;);
-        }
-    }
-
-
-    /**
-     * Set the static int in C++ land to some value
-     * @param val Value
-     * 
-     * @return the old value
-     */
-    public native static int setCppInt(int val);
-
-    /**
-     * Increment the int in C++ by the arg.
-     * @param val Value
-     * 
-     * @return the new value
-     */
-    public native static int incrementCppInt(int val);
-
-}
-</pre></div></div>
-
-<p><a name="provide-a-engine-configuration-for-eventflow-use"></a></p></section><section>
+<h1>Java : Java Function</h1>
+<p>This sample describes how to use java functions in EventFlow.</p><section>
+<h2><a name="EventFlow_under_test"></a>EventFlow under test</h2>
+<p>In this sample the following simple EventFlow fragment is used :</p>
+<p><img src="images/Density.png" alt="Density" /></p></section><section>
+<h2><a name="Declare_the_java_function"></a>Declare the java function</h2>
+<p>See <a href="../../main/java/com/tibco/ep/samples/javafunction/UtilFunctions.java">UtilFunctions.java</a>.</p></section><section>
 <h2><a name="Provide_a_engine_configuration_for_EventFlow_use"></a>Provide a engine configuration for EventFlow use</h2>
 <p>A engine configuration is required to declare the functions available :</p>
 
 <div>
 <div>
-<pre class="source">name = &quot;sbapp-calls-cpp-engine&quot;
+<pre class="source">name = &quot;javafunction-engine&quot;
 version = &quot;1.0.0&quot;
 type = &quot;com.tibco.ep.streambase.configuration.sbengine&quot;
-configuration =
-{
-    StreamBaseEngine =
-    {
-        streamBase =
-        {
-            pluginFunctions =
-            {
-                java =
-                {
-                    setCppInt =
-                    {
-                        type = &quot;simple&quot;
-                        alias = &quot;setCppInt&quot;
-                        className = &quot;com.tibco.ep.samples.nativelibrary.narcpplib.CallCpp&quot;
-                        autoArguments = true
-                    }
 
-                    incrementCppInt =
-                    {
+configuration = {
+    StreamBaseEngine = {
+        streamBase = {
+            pluginFunctions = {
+                java = {
+                    Density = {
                         type = &quot;simple&quot;
-                        alias = &quot;incrementCppInt&quot;
-                        className = &quot;com.tibco.ep.samples.nativelibrary.narcpplib.CallCpp&quot;
+                        alias = &quot;density&quot;
+                        className = &quot;com.tibco.ep.samples.javafunction.UtilFunctions&quot;
                         autoArguments = true
                     }
                 }
@@ -222,17 +88,15 @@ configuration =
         }
     }
 }
-</pre></div></div>
 
-<p><a name="using-in-eventflow"></a></p></section><section>
-<h2><a name="Using_in_EventFlow"></a>Using in EventFlow</h2>
-<p>These functions can now be used in EventFlow :</p>
-<p><img src="images/studioFunction.png" alt="studio" /></p>
-<p><a name="building-this-sample-from-tibco-streambase-studio-trade-and-running-the-unit-test-cases"></a></p></section><section>
+</pre></div></div>
+</section><section>
+<h2><a name="Running_this_sample_from_TIBCO_StreamBase_Studio.E2.84.A2"></a>Running this sample from TIBCO StreamBase Studio&#x2122;</h2>
+<p>Use the <b>Run As -&gt; EventFlow Fragment</b> menu option to run in TIBCO StreamBase Studio&#x2122;, and then enqueue tuples :</p>
+<p><img src="images/studio.gif" alt="RunFromStudio" /></p></section><section>
 <h2><a name="Building_this_sample_from_TIBCO_StreamBase_Studio.E2.84.A2_and_running_the_unit_test_cases"></a>Building this sample from TIBCO StreamBase Studio&#x2122; and running the unit test cases</h2>
-<p>Use the <b>Run As -&gt; Maven install</b> menu option to build from TIBCO StreamBase Studio&#x2122; :</p>
-<p><img src="images/studiounit.gif" alt="studio" /></p>
-<p><a name="building-this-sample-from-the-command-line-and-running-the-unit-test-cases"></a></p></section><section>
+<p>Use the <b>Run As -&gt; EventFlow Fragment Unit Test</b> menu option to build from TIBCO StreamBase Studio&#x2122; :</p>
+<p><img src="images/studiounit.gif" alt="RunFromStudio" /></p></section><section>
 <h2><a name="Building_this_sample_from_the_command_line_and_running_the_unit_test_cases"></a>Building this sample from the command line and running the unit test cases</h2>
 <p>Use the <a class="externalLink" href="https://maven.apache.org">maven</a> as <b>mvn install</b> to build from the command line or Continuous Integration system :</p>
 <p><img src="images/maven.gif" alt="maven" /></p><hr />
