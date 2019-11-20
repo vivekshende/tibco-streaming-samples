@@ -8,7 +8,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="generator" content="Apache Maven Doxia Site Renderer 1.9.1" />
-    <title>HA: cluster aware polling - EventFlow Fragment &#x2013; HA : Cluster aware polling</title>
+    <title>HA: cluster aware state filter - EventFlow Fragment &#x2013; HA : Cluster aware state filter</title>
     <link rel="stylesheet" href="./css/apache-maven-fluido-1.8.min.css" />
     <link rel="stylesheet" href="./css/site.css" />
     <link rel="stylesheet" href="./css/print.css" media="print" />
@@ -18,7 +18,7 @@
     <div class="container-fluid">
       <header>
         <div id="banner">
-          <div class="pull-left"><div id="bannerLeft"><h2>HA: cluster aware polling - EventFlow Fragment</h2>
+          <div class="pull-left"><div id="bannerLeft"><h2>HA: cluster aware state filter - EventFlow Fragment</h2>
 </div>
 </div>
           <div class="pull-right"></div>
@@ -56,31 +56,31 @@
           </div>
         </header>
         <main id="bodyColumn"  class="span10" >
-<h1>HA : Cluster aware polling</h1>
-<p>This sample describes how to build an EventFlow fragment with a cluster-aware adapter polling the filesystem.</p>
+<h1>HA : Cluster aware state filter</h1>
+<p>This sample describes how to build an EventFlow fragment with a cluster-aware state filter.</p>
 <ul>
 
-<li><a href="#enable-cluster-aware-settings-in-adapter">Enable cluster aware settings in adapter</a></li>
+<li><a href="#enable-cluster-aware-settings-in-operator">Enable cluster aware settings in operator</a></li>
 <li><a href="#design-notes">Design notes</a></li>
 <li><a href="#running-this-sample-from-tibco-streambase-studio-trade">Running this sample from TIBCO StreamBase Studio&#x2122;</a></li>
 <li><a href="#building-this-sample-from-tibco-streambase-studio-trade-and-running-the-unit-test-cases">Building this sample from TIBCO StreamBase Studio&#x2122; and running the unit test cases</a></li>
 <li><a href="#building-this-sample-from-the-command-line-and-running-the-unit-test-cases">Building this sample from the command line and running the unit test cases</a></li>
 </ul>
-<p><a name="enable-cluster-aware-settings-in-adapter"></a></p><section>
-<h2><a name="Enable_cluster_aware_settings_in_adapter"></a>Enable cluster aware settings in adapter</h2>
-<p>A file monitor adapter is used to poll the filesystem for new files.  This adapter is configured to be <b>cluster aware</b> - that is, the adapter is started and stopped depending on the state of the cluster.</p>
+<p><a name="enable-cluster-aware-settings-in-operator"></a></p><section>
+<h2><a name="Enable_cluster_aware_settings_in_operator"></a>Enable cluster aware settings in operator</h2>
+<p>A metronome adapter is used to emit tuples with a state filter.  The state filter is configured to be <b>cluster aware</b> - that is, the operator is started and stopped depending on the state of the cluster.</p>
 <p><img src="images/studioclusterawaresettings.png" alt="Clusteraware settings" /></p>
 <p><a name="design-notes"></a></p></section><section>
 <h2><a name="Design_notes"></a>Design notes</h2>
 <p>The cluster aware option <b>Active on a single node in the cluster</b> was selected, hence :</p>
 <ul>
 
-<li>Only one node in the cluster will poll the filesystem regardless of the number of nodes</li>
-<li>Should the node polling the filesystem fail, another node in the cluster will start polling</li>
+<li>Only one node in the cluster will process the metronome tuples regardless of the number of nodes</li>
+<li>Should the node processing the metronome tuples fail, another node in the cluster will start processing the tuples</li>
 </ul>
 <p><a name="running-this-sample-from-tibco-streambase-studio-trade"></a></p></section><section>
 <h2><a name="Running_this_sample_from_TIBCO_StreamBase_Studio.E2.84.A2"></a>Running this sample from TIBCO StreamBase Studio&#x2122;</h2>
-<p>Use the <b>Run As -&gt; EventFlow Fragment</b> menu option to run in TIBCO StreamBase Studio&#x2122;, and then write some files into the polling directory.</p>
+<p>Use the <b>Run As -&gt; EventFlow Fragment</b> menu option to run in TIBCO StreamBase Studio&#x2122;.</p>
 <p>Note that here we are unit testing the business logic rather than cluster aware - in this sample we test cluster aware in the application archive integration test cases.</p>
 <p><img src="images/studio.gif" alt="RunFromStudio" /></p>
 <p><a name="building-this-sample-from-tibco-streambase-studio-trade-and-running-the-unit-test-cases"></a></p></section><section>
