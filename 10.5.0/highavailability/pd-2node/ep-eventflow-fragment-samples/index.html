@@ -8,7 +8,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="generator" content="Apache Maven Doxia Site Renderer 1.9.1" />
-    <title>HA: 2-node active standby - EventFlow Fragment &#x2013; HA : 2-node active standby</title>
+    <title>HA: 2-node active active - EventFlow Fragment &#x2013; HA : 2-node active active</title>
     <link rel="stylesheet" href="./css/apache-maven-fluido-1.8.min.css" />
     <link rel="stylesheet" href="./css/site.css" />
     <link rel="stylesheet" href="./css/print.css" media="print" />
@@ -18,7 +18,7 @@
     <div class="container-fluid">
       <header>
         <div id="banner">
-          <div class="pull-left"><div id="bannerLeft"><h2>HA: 2-node active standby - EventFlow Fragment</h2>
+          <div class="pull-left"><div id="bannerLeft"><h2>HA: 2-node active active - EventFlow Fragment</h2>
 </div>
 </div>
           <div class="pull-right"></div>
@@ -56,8 +56,8 @@
           </div>
         </header>
         <main id="bodyColumn"  class="span10" >
-<h1>HA : 2-node active standby</h1>
-<p>This sample describes how to build an EventFlow fragment suitable for 2-node active standby deployment.</p>
+<h1>HA : 2-node active active</h1>
+<p>This sample describes how to build an EventFlow fragment suitable for 2-node active active deployment.</p>
 <ul>
 
 <li><a href="#store-tuples-in-a-query-table-backed-by-transactional-memory">Store tuples in a query table backed by transactional memory</a></li>
@@ -72,22 +72,22 @@
 <ul>
 
 <li>Query table is key&#x2019;ed by <b>name</b> field</li>
-<li>A tuple injected on the <b>UpdateStream</b> stream containing <b>name</b> &amp; <b>value</b> will insert or update the <b>name</b> entry in the table with the new <b>value</b></li>
-<li>A tuple injected on the <b>ReadStream</b> stream containing <b>name</b> will read the current value from the table</li>
-<li>A tuple injected on the <b>DeleteStream</b> stream containing <b>name</b> will delete the name from the table</li>
+<li>A tuple injected on the <b>UpdateStream</b> stream containing <b>name</b> &amp; <b>value</b> will be routed to target node and insert or update the <b>name</b> entry in the table with the new <b>value</b></li>
+<li>A tuple injected on the <b>ReadStream</b> stream containing <b>name</b> will be routed to target node, read the current value from the table and routed back to the source node</li>
+<li>A tuple injected on the <b>DeleteStream</b> stream containing <b>name</b> will be routed to target node and delete the name from the table</li>
 </ul>
 <p>The query table is configured with transactional memory :</p>
 <p><img src="images/studiotablesettings.png" alt="Table settings" /></p>
-<p>A data distribution policy <b>static-data-distribution-policy</b> is set ( to be later defined in the application definition configuration file ) :</p>
+<p>The default data distribution policy <b>default-dynamic-data-distribution-policy</b> is used :</p>
 <p><img src="images/studiodatadistribution.png" alt="Data distribution" /></p>
 <p>Finally, the tuples stored in the query table are partitioned by the <b>name</b> field :</p>
 <p><img src="images/studioschema.png" alt="Schema" /></p>
 <p><a name="design-notes"></a></p></section><section>
 <h2><a name="Design_notes"></a>Design notes</h2>
-<p>Processing is always on the local node, hence :</p>
 <ul>
 
-<li>Routing to a remote node is not required</li>
+<li>Tuples are routed to the target node</li>
+<li>In the case of read, the return tuple is routed back to the source node - the source node is recorded in sourcenode field to support this</li>
 <li>Query scope is local ( ie not cluster wide )</li>
 </ul>
 <p><a name="running-this-sample-from-tibco-streambase-studio-trade"></a></p></section><section>
