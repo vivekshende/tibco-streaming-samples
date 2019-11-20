@@ -8,7 +8,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="generator" content="Apache Maven Doxia Site Renderer 1.9.1" />
-    <title>HA: proxy discovery - Application &#x2013; HA : 2-node active active with proxy discovery</title>
+    <title>HA: cluster aware polling - Application &#x2013; HA : Cluster aware polling</title>
     <link rel="stylesheet" href="./css/apache-maven-fluido-1.8.min.css" />
     <link rel="stylesheet" href="./css/site.css" />
     <link rel="stylesheet" href="./css/print.css" media="print" />
@@ -18,7 +18,7 @@
     <div class="container-fluid">
       <header>
         <div id="banner">
-          <div class="pull-left"><div id="bannerLeft"><h2>HA: proxy discovery - Application</h2>
+          <div class="pull-left"><div id="bannerLeft"><h2>HA: cluster aware polling - Application</h2>
 </div>
 </div>
           <div class="pull-right"></div>
@@ -55,12 +55,11 @@
           </div>
         </header>
         <main id="bodyColumn"  class="span10" >
-<h1>HA : 2-node active active with proxy discovery</h1>
-<p>This sample describes how to deploy an EventFlow fragment in a 2-node active active configuration with proxy discovery.</p>
+<h1>HA : Cluster aware polling</h1>
+<p>This sample describes how to deploy an EventFlow fragment in a 2-node cluster aware configuration.</p>
 <ul>
 
 <li><a href="#machines-and-nodes">Machines and nodes</a></li>
-<li><a href="#data-partitioning">Data partitioning</a></li>
 <li><a href="#define-the-node-deployment-configuration">Define the node deployment configuration</a></li>
 <li><a href="#design-notes">Design notes</a></li>
 <li><a href="#failure-scenarios">Failure scenarios</a></li>
@@ -69,81 +68,16 @@
 <p><a name="machines-and-nodes"></a></p><section>
 <h2><a name="Machines_and_nodes"></a>Machines and nodes</h2>
 <p>In this sample we name the machines as <b>A</b>,  which hosts the StreamBase node <b>A</b>, and <b>B</b>, which hosts the StreamBase node <b>B</b>.</p>
-<p><img src="images/two-node-active-active-nodes-pd.svg" alt="nodes" /></p>
-<p>A client that uses the service can connect to either machine <b>A</b> or <b>B</b>.</p>
-<p>Note that UDP discovery is blocked between the machines, this might be due to :</p>
-<ul>
-
-<li>Running the machines on different subnets - for example different data centres</li>
-<li>Firewall between the machines</li>
-<li>UDP not supported by the network - for example cloud virtual networks</li>
-</ul>
-<p>( service names are omitted in descriptions for clarity )</p>
-<p><a name="data-partitioning"></a></p></section><section>
-<h2><a name="Data_partitioning"></a>Data partitioning</h2>
-<p>To support an active active configuration, the query table data must be replicated between the nodes.<br />
-In this sample the default <b>default-cluster-wide-availability-zone</b> is used - a number of virtual partitions are created to evenly balance and replicate data around the cluster :</p>
-<p><img src="images/two-node-active-active-partitions-pd.svg" alt="partitions" /></p>
-<p>( only 2 virtual partitions are shown - the default is 64 )</p>
+<p><img src="images/two-node-cluster-aware.svg" alt="nodes" /></p>
+<p>Both nodes access the common filesystem.</p>
 <p><a name="define-the-node-deployment-configuration"></a></p></section><section>
 <h2><a name="Define_the_node_deployment_configuration"></a>Define the node deployment configuration</h2>
-<p>In this sample we include the proxyDiscovery setting and specify hostnames and ports so that the nodes can be made aware of each other.</p>
-
-<div>
-<div>
-<pre class="source">name = &quot;aa-2node-app&quot;
-version = &quot;1.0.0&quot;
-type = &quot;com.tibco.ep.dtm.configuration.node&quot;
-
-configuration = {
-    NodeDeploy = {
-        nodes = {
-            &quot;A.pd-2node-app&quot; = { 
-                communication = {
-                    numberSearchPorts = 5
-                    administration = {
-                        address = ${A_HOSTNAME:-localhost}
-                        transportPort = ${A_ADMINPORT:-2000}
-                    }
-                    distributionListenerInterfaces = [ {
-                        address = ${A_HOSTNAME:-localhost}
-                        dataTransportPort = ${A_DATATRANSPORTPORT:-2001}
-                        secure = false
-                    } ]
-                    proxyDiscovery = {
-                        remoteNodes = [ &quot;.*&quot; ]
-                    }
-                }
-            }
-            &quot;B.pd-2node-app&quot; = { 
-                communication = {
-                    numberSearchPorts = 5
-                    administration = {
-                        address = ${B_HOSTNAME:-localhost}
-                        transportPort = ${B_ADMINPORT:-3000}
-                    }
-                    distributionListenerInterfaces = [ {
-                        address = ${B_HOSTNAME:-localhost}
-                        dataTransportPort = ${B_DATATRANSPORTPORT:-3001}
-                        secure = false
-                    } ]
-                    proxyDiscovery = {
-                        remoteNodes = [ &quot;.*&quot; ]
-                    }
-                }
-            }
-        }
-    }
-}
-</pre></div></div>
-
+<p>This sample uses no special node deployment configuration, so no node deployment configuration is required.</p>
 <p><a name="design-notes"></a></p></section><section>
 <h2><a name="Design_notes"></a>Design notes</h2>
 <ul>
 
-<li>The default dynamic data distribution policy is chosen to distribute the data across the cluster</li>
-<li>Most of the data distribution policy and the availability zone configuration values are not set since defaults work well</li>
-<li>Proxy discovery is used</li>
+<li>The event flow fragment defines that only one file monitor adapter is running in the cluster</li>
 </ul>
 <p><a name="failure-scenarios"></a></p></section><section>
 <h2><a name="Failure_scenarios"></a>Failure scenarios</h2>
@@ -160,37 +94,30 @@ configuration = {
 
 <tr class="b">
 <td>Machine A fails </td>
-<td> 1 Client is disconnected<br />2 Virtual partitions become active on B<br />3 Client may connect to B and continue  </td>
-<td> 1 Fix machine A<br />2 Use <b>epadmin install node</b> and <b>epadmin start node</b> </td>
+<td> File monitor adapter on node B is automatically started  </td>
+<td> 1 Fix machine A<br />2 Use <b>epadmin install node</b> and <b>epadmin start node</b><br />3 Note that adapter remains running on node B </td>
 <td> 1 No data loss<br />2 No service loss</td></tr>
 <tr class="a">
 <td>Machine B fails </td>
-<td> 1 Client is disconnected<br />2 Virtual partitions become active on A<br />3 Client may connect to A and continue  </td>
+<td> No impact to reading filesystem </td>
 <td> 1 Fix machine B<br />2 Use <b>epadmin install node</b> and <b>epadmin start node</b> </td>
 <td> 1 No data loss<br />2 No service loss</td></tr>
-<tr class="b">
-<td>Network fails  </td>
-<td> 1 irtual partitions become active on both A and B<br /><b>multi-master</b> scenario </td>
-<td> 1 Fix network<br />2 Use <b>epadmin restore availabilityzone</b> </td>
-<td> 1 <b>Possible data loss</b><br />2 No service loss</td></tr>
 </tbody>
 </table>
-<p>With a 2 node configuration node quorums don&#x2019;t apply hence a multi-master scenario is possible on network failure.<br />
-To avoid the risk of data loss when restoring the availability zone, multiple network paths ( such as network bonding ) is recommended.</p>
+<p>With a 2 node configuration node quorums don&#x2019;t apply hence a multi-master scenario is possible on network failure. Multiple network paths ( such as network bonding ) is recommended.</p>
 <p><a name="building-this-sample-from-the-command-line-and-running-the-integration-test-cases"></a></p></section><section>
 <h2><a name="Building_this_sample_from_the_command_line_and_running_the_integration_test_cases"></a>Building this sample from the command line and running the integration test cases</h2>
 <p>In this sample, some HA integration test cases are defined in the pom.xml that :</p>
 <ul>
 
 <li>start nodes A &amp; B</li>
-<li>use <b>epadmin start playback</b> to inject tuples to node A</li>
-<li>use <b>epadmin read querytable</b> on node A to verify query table contents</li>
+<li>use <b>epadmin display adapter</b> to check the adapter status on both nodes ( file monitor adapter is started on node A only )</li>
 <li>stop node A</li>
-<li>use <b>epadmin read querytable</b> on node B to verify no data loss</li>
+<li>use <b>epadmin display adapter</b> to check the adapter status on both nodes ( file monitor adapter is now started on node B )</li>
 <li>stop node B</li>
 </ul>
 <p><b>Warning:</b> This does not constitute an exhaustive non-functional test plan</p>
-<p>Use the <a class="externalLink" href="https://maven.apache.org">maven</a> as <b>mvn install</b> to build from the command line or Continuous Integration system :</p>
+<p>Use <a class="externalLink" href="https://maven.apache.org">maven</a> as <b>mvn install</b> to build from the command line or Continuous Integration system :</p>
 <p><img src="images/maven.gif" alt="maven" /></p><hr />
 <p>Copyright (c) 2018-2019, TIBCO Software Inc.</p>
 <p>Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:</p>
