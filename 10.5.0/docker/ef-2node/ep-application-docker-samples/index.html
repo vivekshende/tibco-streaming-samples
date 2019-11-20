@@ -8,7 +8,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="generator" content="Apache Maven Doxia Site Renderer 1.9.1" />
-    <title>Docker: LiveView Web - Application &#x2013; Docker : TIBCO LiveView™ Web</title>
+    <title>Docker: proxy discovery test - Application &#x2013; Docker : 2-node active active with proxy discovery</title>
     <link rel="stylesheet" href="./css/apache-maven-fluido-1.8.min.css" />
     <link rel="stylesheet" href="./css/site.css" />
     <link rel="stylesheet" href="./css/print.css" media="print" />
@@ -18,7 +18,7 @@
     <div class="container-fluid">
       <header>
         <div id="banner">
-          <div class="pull-left"><div id="bannerLeft"><h2>Docker: LiveView Web - Application</h2>
+          <div class="pull-left"><div id="bannerLeft"><h2>Docker: proxy discovery test - Application</h2>
 </div>
 </div>
           <div class="pull-right"></div>
@@ -55,24 +55,17 @@
           </div>
         </header>
         <main id="bodyColumn"  class="span10" >
-<h1>Docker : TIBCO LiveView&#x2122; Web</h1>
-<p>This sample describes how to deploy an application archive containing a TIBCO LiveView&#x2122; Web fragment to Docker.</p>
+<h1>Docker : 2-node active active with proxy discovery</h1>
+<p>Testing proxy discovery configurations can be difficult since often in test hardware, networks do not block the discovery messages.  This sample describes how to use docker to test proxy discovery.</p>
 <ul>
 
-<li><a href="#prerequisites">Prerequisites</a></li>
 <li><a href="#creating-an-application-archive-project-for-docker-from-tibco-streambase-studio-trade">Creating an application archive project for Docker from TIBCO StreamBase Studio&#x2122;</a></li>
-<li><a href="#containers-and-nodes">Containers and nodes</a></li>
-<li><a href="#changes-to-the-default-docker-configurations">Changes to the default docker configurations</a></li>
-<li><a href="#building-and-running-from-tibco-streambase-studio-trade">Building and running from TIBCO StreamBase Studio&#x2122;</a></li>
+<li><a href="#machines-and-nodes">Machines and nodes</a></li>
+<li><a href="#changes-to-the-default-configurations">Changes to the default configurations</a></li>
 <li><a href="#building-this-sample-from-the-command-line-and-running-the-integration-test-cases">Building this sample from the command line and running the integration test cases</a></li>
-<li><a href="#example-docker-commands">Example docker commands</a></li>
 </ul>
 <p>See also <a class="externalLink" href="https://docs.tibco.com/pub/str/10.4.0/doc/html/admin/part-docker.html">Docker section in TIBCO&#xae; Streaming documentation</a>.</p>
-<p><a name="prerequisites"></a></p><section>
-<h2><a name="Prerequisites"></a>Prerequisites</h2>
-<p>Docker must first be downloaded and installed - see <a class="externalLink" href="https://www.docker.com/">https://www.docker.com/</a> for further details.</p>
-<p>On MacOS, the resources available to docker may need to be increased beyond the default - see CPUs and Memory settings on the Advanced tab of Docker preferences.</p>
-<p><a name="creating-an-application-archive-project-for-docker-from-tibco-streambase-studio-trade"></a></p></section><section>
+<p><a name="creating-an-application-archive-project-for-docker-from-tibco-streambase-studio-trade"></a></p><section>
 <h2><a name="Creating_an_application_archive_project_for_Docker_from_TIBCO_StreamBase_Studio.E2.84.A2"></a>Creating an application archive project for Docker from TIBCO StreamBase Studio&#x2122;</h2>
 <p>TIBCO StreamBase Studio&#x2122; can generate a project containing the necessary files to build and test a Docker image by selecting <b>Enable Docker support</b> when creating an application archive project :</p>
 <p><img src="images/create.png" alt="create" /></p>
@@ -87,14 +80,63 @@
 <li><a href="../../main/configurations/app.conf">Application definition configuration</a> that defines nodeType docker to use System V shared memory</li>
 <li><a href="../../main/configurations/defaultnode.conf">Node deployment configuration</a> that uses the above nodeType</li>
 </ul>
-<p>Note that whilst this project will create a simple Docker image, changes to the project may be required for additional behaviours.</p>
-<p><a name="containers-and-nodes"></a></p></section><section>
-<h2><a name="Containers_and_nodes"></a>Containers and nodes</h2>
-<p>In this sample we name the docker container as <b>A.lv-1node-app</b>,  which hosts the StreamBase node <b>A.lv-1node-app</b>, the TIBCO LiveView&#x2122; Web port 10080 is published to the host :</p>
-<p><img src="images/lv-docker.svg" alt="nodes" /></p>
-<p><a name="changes-to-the-default-docker-configurations"></a></p></section><section>
-<h2><a name="Changes_to_the_default_docker_configurations"></a>Changes to the default docker configurations</h2>
-<p>In this sample we still want to build the application archive if Docker is not installed, hence the maven <a href="../../../pom.xml">pom.xml</a> file is updated to detect if docker is installed :</p>
+<p><a name="machines-and-nodes"></a></p></section><section>
+<h2><a name="Machines_and_nodes"></a>Machines and nodes</h2>
+<p>In this sample we name the docker machines as <b>A.example.com</b>,  which hosts the StreamBase node <b>A.pd-test-app</b>, and <b>B.example.com</b>, which hosts the StreamBase node <b>B.pd-test-app</b>.</p>
+<p><img src="images/two-node-docker.svg" alt="nodes" /></p>
+<p>A firewall is configured to block the discovery network packets to test proxy discovery.</p>
+<p><a name="changes-to-the-default-configurations"></a></p></section><section>
+<h2><a name="Changes_to_the_default_configurations"></a>Changes to the default configurations</h2>
+<p>The <a href="../../main/configurations/defaultnode.conf">Node deployment configuration</a> is updated to include the prodxy discovery configuration :</p>
+
+<div>
+<div>
+<pre class="source">        nodes = {
+            &quot;A.pd-test-app&quot; = { 
+                nodeType = docker
+                communication = {
+                    administration = {
+                        address = ${A_HOSTNAME:-A.example.com}
+                        transportPort = ${A_ADMINPORT:-2000}
+                    }
+                    distributionListenerInterfaces = [ {
+                        address = ${A_HOSTNAME:-A.example.com}
+                        dataTransportPort = ${A_DATATRANSPORTPORT:-3000}
+                    } ]
+                    proxyDiscovery = {
+                        remoteNodes = [ &quot;.*&quot; ]
+                    }
+                }
+            }
+</pre></div></div>
+
+<p>The base image <a href="../../main/docker/base/Dockerfile">Dockerfile</a> is updated to include the sudo tool and its configuration :</p>
+
+<div>
+<div>
+<pre class="source">RUN yum --assumeyes install \
+    sysstat \
+    gdb \
+    java-1.8.0-openjdk \
+    zip \
+    unzip \
+    net-tools \
+    iptables \
+    tc \
+    sudo \
+    &amp;&amp; yum clean all
+...
+RUN echo &quot;${USER_NAME} ALL=(ALL) NOPASSWD: ALL&quot; &gt;&gt; /etc/sudoers
+</pre></div></div>
+
+<p>The <a href="../../main/docker/base/start-node">start-node</a> script is updated to set firewall rules to drop in-bound discovery :</p>
+
+<div>
+<div>
+<pre class="source">sudo iptables -I INPUT ! -s ${HOSTNAME} -p udp --dport 54321 -j DROP
+</pre></div></div>
+
+<p>The maven <a href="../../../pom.xml">pom.xml</a> file is updated to detect if docker is installed :</p>
 
 <div>
 <div>
@@ -147,75 +189,19 @@
     &lt;/profile&gt;
 </pre></div></div>
 
-<p>Since this application starts a Web Server we need to expose the port outside of Docker during integration testing and wait until the web server is running :</p>
+<p>and include running <b>epadmin display cluster</b> when the nodes are started - this shows if the nodes are connected to each other via the proxy discovery configuration :</p>
 
 <div>
 <div>
-<pre class="source">    &lt;ports&gt; 
-        &lt;port&gt;10080:10080&lt;/port&gt;
-    &lt;/ports&gt;
-    ...
-    &lt;wait&gt;
-        &lt;http&gt;
-            &lt;url&gt;http://localhost:10080&lt;/url&gt;
-            &lt;method&gt;GET&lt;/method&gt;
-            &lt;status&gt;200..399&lt;/status&gt;
-        &lt;/http&gt;
-        &lt;time&gt;500000&lt;/time&gt;
-    &lt;/wait&gt;
+<pre class="source">    &lt;exec&gt;
+        &lt;postStart&gt;epadmin servicename=B.${project.artifactId} display cluster&lt;/postStart&gt;
+    &lt;/exec&gt;
 </pre></div></div>
 
-<p><a name="building-and-running-from-tibco-streambase-studio-trade"></a></p></section><section>
-<h2><a name="Building_and_running_from_TIBCO_StreamBase_Studio.E2.84.A2"></a>Building and running from TIBCO StreamBase Studio&#x2122;</h2>
-<p>Use the <b>Run As -&gt; Maven install</b> menu option to build from TIBCO StreamBase Studio&#x2122; or Run As shortcut.  Tests can be skipped if required by ticking the <b>Skip tests</b> :</p>
-<p><img src="images/studio-build.gif" alt="maven" /></p>
-<p>The <a class="externalLink" href="https://marketplace.eclipse.org/content/eclipse-docker-tooling">Docker tooling</a> eclipse plugin ( requires <a class="externalLink" href="https://marketplace.eclipse.org/content/tm-terminal">TM Terminal</a> ) can be used to start and manage containers :</p>
-<p><img src="images/studio-run.gif" alt="maven" /></p>
 <p><a name="building-this-sample-from-the-command-line-and-running-the-integration-test-cases"></a></p></section><section>
 <h2><a name="Building_this_sample_from_the_command_line_and_running_the_integration_test_cases"></a>Building this sample from the command line and running the integration test cases</h2>
 <p>Use the <a class="externalLink" href="https://maven.apache.org">maven</a> as <b>mvn install</b> to build from the command line or Continuous Integration system :</p>
-<p><img src="images/maven.gif" alt="maven" /></p>
-<p><a name="example-docker-commands"></a></p></section><section>
-<h2><a name="Example_docker_commands"></a>Example docker commands</h2><section>
-<h3><a name="Create_the_docker_network"></a>Create the docker network</h3>
-<p>Use the <a class="externalLink" href="https://docs.docker.com/engine/reference/commandline/network_create/">docker network</a> command :</p>
-
-<div>
-<div>
-<pre class="source">$ docker network create example.com
-03961870a96df30e7e20cf54a3c339b6d7a1e0b344d0833f4c7f88dfaba76138
-</pre></div></div>
-</section><section>
-<h3><a name="Start_the_container"></a>Start the container</h3>
-<p>Use the <a class="externalLink" href="https://docs.docker.com/engine/reference/run/">docker run</a> command.  In this case the following options are used :</p>
-<ul>
-
-<li><b>&#x2013;detach</b> - run in the background</li>
-<li><b>&#x2013;hostname=A.example.com &#x2013;network-alias=A.example.com &#x2013;network=example.com</b> - set the container hostname and network name. This must match the docker network name and the <a href="../../main/configurations/security.conf">Trusted hosts HOCON configuration</a></li>
-<li><b>&#x2013;name=A.lv-1node-app</b> - container name</li>
-<li><b>&#x2013;env=NODENAME=A.lv-1node-app</b> - node name</li>
-<li><b>&#x2013;publish 10080:10080</b> - publish the TIBCO LiveView&#x2122; Web port to the host</li>
-<li><b>docker/lv-1node-app:1.0.0</b> - Docker image name</li>
-</ul>
-
-<div>
-<div>
-<pre class="source">$ docker run --detach --hostname=A.example.com --network-alias=A.example.com --name=A.lv-1node-app --network=example.com --env=NODENAME=A.lv-1node-app --publish 10080:10080 docker/lv-1node-app:1.0.0
-ec0aaaa22b92707e74f15b9ada6e6c37c14669856744e88ebc1741b2b099cc0d
-</pre></div></div>
-</section><section>
-<h3><a name="Connect_to_the_TIBCO_LiveView.E2.84.A2_Web_console"></a>Connect to the TIBCO LiveView&#x2122; Web console</h3>
-<p>Use a web browser at <a class="externalLink" href="http://localhost:10080/">http://localhost:10080/</a> :</p>
-<p><img src="images/lvweb.gif" alt="lvweb" /></p></section><section>
-<h3><a name="Stop_and_remove_the_containers"></a>Stop and remove the containers</h3>
-<p>Use the <a class="externalLink" href="https://docs.docker.com/engine/reference/commandline/stop/">docker stop</a> and <a class="externalLink" href="https://docs.docker.com/engine/reference/commandline/rm/">docker rm</a> commands :</p>
-
-<div>
-<div>
-<pre class="source">$ docker stop A.lv-1node-app
-$ docker rm A.lv-1node-app
-</pre></div></div>
-<hr />
+<p><img src="images/maven.gif" alt="maven" /></p><hr />
 <p>Copyright (c) 2018-2019, TIBCO Software Inc.</p>
 <p>Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:</p>
 <ul>
@@ -233,7 +219,7 @@ $ docker rm A.lv-1node-app
 <p>Neither the name of the copyright holder nor the names of its contributors may be used to endorse or promote products derived from this software without specific prior written permission.</p>
 </li>
 </ul>
-<p>THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS &#x201c;AS IS&#x201d; AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</p></section></section>
+<p>THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS &#x201c;AS IS&#x201d; AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</p></section>
         </main>
       </div>
     </div>
