@@ -8,7 +8,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="generator" content="Apache Maven Doxia Site Renderer 1.9.1" />
-    <title>HA: 2-node active active - Application &#x2013; HA : 2-node active active</title>
+    <title>HA: 3-node active active - Application &#x2013; HA : 3-node active active</title>
     <link rel="stylesheet" href="./css/apache-maven-fluido-1.8.min.css" />
     <link rel="stylesheet" href="./css/site.css" />
     <link rel="stylesheet" href="./css/print.css" media="print" />
@@ -18,7 +18,7 @@
     <div class="container-fluid">
       <header>
         <div id="banner">
-          <div class="pull-left"><div id="bannerLeft"><h2>HA: 2-node active active - Application</h2>
+          <div class="pull-left"><div id="bannerLeft"><h2>HA: 3-node active active - Application</h2>
 </div>
 </div>
           <div class="pull-right"></div>
@@ -55,8 +55,8 @@
           </div>
         </header>
         <main id="bodyColumn"  class="span10" >
-<h1>HA : 2-node active active</h1>
-<p>This sample describes how to deploy an EventFlow fragment in a 2-node active active configuration.</p>
+<h1>HA : 3-node active active</h1>
+<p>This sample describes how to deploy an EventFlow fragment in a 3-node active active configuration.</p>
 <ul>
 
 <li><a href="#machines-and-nodes">Machines and nodes</a></li>
@@ -68,19 +68,49 @@
 </ul>
 <p><a name="machines-and-nodes"></a></p><section>
 <h2><a name="Machines_and_nodes"></a>Machines and nodes</h2>
-<p>In this sample we name the machines as <b>A</b>,  which hosts the StreamBase node <b>A</b>, and <b>B</b>, which hosts the StreamBase node <b>B</b>.</p>
-<p><img src="images/two-node-active-active-nodes.svg" alt="nodes" /></p>
-<p>A client that uses the service can connect to either machine <b>A</b> or <b>B</b>.</p>
+<p>In this sample we name the machines as <b>A</b>,  which hosts the StreamBase node <b>A</b>, <b>B</b>, which hosts the StreamBase node <b>B</b> and <b>C</b> which hosts StreamBase node <b>C</b>.</p>
+<p><img src="images/three-node-active-active-nodes.svg" alt="nodes" /></p>
+<p>A client that uses the service can connect to any machine.</p>
 <p>( service names are omitted in descriptions for clarity )</p>
 <p><a name="data-partitioning"></a></p></section><section>
 <h2><a name="Data_partitioning"></a>Data partitioning</h2>
 <p>To support an active active configuration, the query table data must be replicated between the nodes.<br />
 In this sample the default <b>default-cluster-wide-availability-zone</b> is used - a number of virtual partitions are created to evenly balance and replicate data around the cluster :</p>
-<p><img src="images/two-node-active-active-partitions.svg" alt="partitions" /></p>
-<p>( only 2 virtual partitions are shown - the default is 64 )</p>
+<p><img src="images/three-node-active-active-partitions.svg" alt="partitions" /></p>
+<p>( only 3 virtual partitions are shown - the default is 64 )</p>
 <p><a name="define-the-node-deployment-configuration"></a></p></section><section>
 <h2><a name="Define_the_node_deployment_configuration"></a>Define the node deployment configuration</h2>
-<p>Since this sample uses the default availability zone, it doesn&#x2019;t need to be specified again, so no node deployment configuration is required/</p>
+<p>The <b>minimumNumberOfVotes</b> configuration enables quorums, so the node deployment configuration is :</p>
+
+<div>
+<div>
+<pre class="source">name = &quot;aa-3node-app&quot;
+version = &quot;1.0.0&quot;
+type = &quot;com.tibco.ep.dtm.configuration.node&quot;
+
+configuration = {
+    NodeDeploy = {
+        nodes = {
+            &quot;${EP_NODE_NAME}&quot; = {
+                availabilityZoneMemberships = {
+                    default-cluster-wide-availability-zone = {
+                    }
+                }
+            }          
+        }
+        availabilityZones = {
+            default-cluster-wide-availability-zone = {
+                dataDistributionPolicy = &quot;default-dynamic-data-distribution-policy&quot;
+                // enable quorums - each node must be able to see itself plus 1 other node
+                //
+                minimumNumberOfVotes = 2
+            }
+        }
+    }
+}
+</pre></div></div>
+
+<p>Note that <b>percentageOfVotes</b> could be used instead.  An alternative configuration for quorums could use <b>quorumMemberPattern</b>.</p>
 <p><a name="design-notes"></a></p></section><section>
 <h2><a name="Design_notes"></a>Design notes</h2>
 <ul>
@@ -103,29 +133,43 @@ In this sample the default <b>default-cluster-wide-availability-zone</b> is used
 
 <tr class="b">
 <td>Machine A fails </td>
-<td> 1 Client is disconnected<br />2 Virtual partitions become active on B<br />3 Client may connect to B and continue  </td>
+<td> 1 Client is disconnected<br />2 Virtual partitions become active on B &amp; C<br />3 Client may connect to B or C and continue  </td>
 <td> 1 Fix machine A<br />2 Use <b>epadmin install node</b> and <b>epadmin start node</b> </td>
 <td> 1 No data loss<br />2 No service loss</td></tr>
 <tr class="a">
 <td>Machine B fails </td>
-<td> 1 Client is disconnected<br />2 Virtual partitions become active on A<br />3 Client may connect to A and continue  </td>
+<td> 1 Client is disconnected<br />2 Virtual partitions become active on A &amp; C<br />3 Client may connect to A or C and continue  </td>
 <td> 1 Fix machine B<br />2 Use <b>epadmin install node</b> and <b>epadmin start node</b> </td>
 <td> 1 No data loss<br />2 No service loss</td></tr>
 <tr class="b">
-<td>Network fails  </td>
-<td> 1 irtual partitions become active on both A and B<br /><b>multi-master</b> scenario </td>
+<td>Machine C fails </td>
+<td> 1 Client is disconnected<br />2 Virtual partitions become active on A &amp; B<br />3 Client may connect to A or B and continue  </td>
+<td> 1 Fix machine C<br />2 Use <b>epadmin install node</b> and <b>epadmin start node</b> </td>
+<td> 1 No data loss<br />2 No service loss</td></tr>
+<tr class="a">
+<td>Network fails to A </td>
+<td> 1 Quorum on A fails and takes itself offline to avoid multi-master </td>
 <td> 1 Fix network<br />2 Use <b>epadmin restore availabilityzone</b> </td>
-<td> 1 <b>Possible data loss</b><br />2 No service loss</td></tr>
+<td> 1 No data loss<br />2 No service loss</td></tr>
+<tr class="b">
+<td>Network fails to B </td>
+<td> 1 Quorum on B fails and takes itself offline to avoid multi-master </td>
+<td> 1 Fix network<br />2 Use <b>epadmin restore availabilityzone</b> </td>
+<td> 1 No data loss<br />2 No service loss</td></tr>
+<tr class="a">
+<td>Network fails to C </td>
+<td> 1 Quorum on C fails and takes itself offline to avoid multi-master </td>
+<td> 1 Fix network<br />2 Use <b>epadmin restore availabilityzone</b> </td>
+<td> 1 No data loss<br />2 No service loss</td></tr>
 </tbody>
 </table>
-<p>With a 2 node configuration node quorums don&#x2019;t apply hence a multi-master scenario is possible on network failure.<br />
-To avoid the risk of data loss when restoring the availability zone, multiple network paths ( such as network bonding ) is recommended.</p>
+<p>With a 3 node configuration node quorums can be applied to avoid a multi-master scenario.</p>
 <p><a name="building-this-sample-from-the-command-line-and-running-the-integration-test-cases"></a></p></section><section>
 <h2><a name="Building_this_sample_from_the_command_line_and_running_the_integration_test_cases"></a>Building this sample from the command line and running the integration test cases</h2>
 <p>In this sample, some HA integration test cases are defined in the pom.xml that :</p>
 <ul>
 
-<li>start nodes A &amp; B</li>
+<li>start nodes A, B &amp; C</li>
 <li>use <b>epadmin start playback</b> to inject tuples to node A</li>
 <li>use <b>epadmin read querytable</b> on node A to verify query table contents</li>
 <li>stop node A</li>
