@@ -8,7 +8,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="generator" content="Apache Maven Doxia Site Renderer 1.9.1" />
-    <title>HA: cluster aware polling - Application &#x2013; HA : Cluster aware polling</title>
+    <title>HA: cluster aware state filter - Application &#x2013; HA : Cluster aware state filter</title>
     <link rel="stylesheet" href="./css/apache-maven-fluido-1.8.min.css" />
     <link rel="stylesheet" href="./css/site.css" />
     <link rel="stylesheet" href="./css/print.css" media="print" />
@@ -18,7 +18,7 @@
     <div class="container-fluid">
       <header>
         <div id="banner">
-          <div class="pull-left"><div id="bannerLeft"><h2>HA: cluster aware polling - Application</h2>
+          <div class="pull-left"><div id="bannerLeft"><h2>HA: cluster aware state filter - Application</h2>
 </div>
 </div>
           <div class="pull-right"></div>
@@ -55,7 +55,7 @@
           </div>
         </header>
         <main id="bodyColumn"  class="span10" >
-<h1>HA : Cluster aware polling</h1>
+<h1>HA : Cluster aware state filter</h1>
 <p>This sample describes how to deploy an EventFlow fragment in a 2-node cluster aware configuration.</p>
 <ul>
 
@@ -69,15 +69,14 @@
 <h2><a name="Machines_and_nodes"></a>Machines and nodes</h2>
 <p>In this sample we name the machines as <b>A</b>,  which hosts the StreamBase node <b>A</b>, and <b>B</b>, which hosts the StreamBase node <b>B</b>.</p>
 <p><img src="images/two-node-cluster-aware.svg" alt="nodes" /></p>
-<p>Both nodes access the common filesystem.</p>
 <p><a name="define-the-node-deployment-configuration"></a></p></section><section>
 <h2><a name="Define_the_node_deployment_configuration"></a>Define the node deployment configuration</h2>
-<p>This sample uses no special node deployment configuration, so no node deployment configuration is required.</p>
+<p>This sample uses no special node deployment configurations, so node deployment configuration file is not required.</p>
 <p><a name="design-notes"></a></p></section><section>
 <h2><a name="Design_notes"></a>Design notes</h2>
 <ul>
 
-<li>The event flow fragment defines that only one file monitor adapter is running in the cluster</li>
+<li>The event flow fragment defines that only one state filter operator is running in the cluster</li>
 </ul>
 <p><a name="failure-scenarios"></a></p></section><section>
 <h2><a name="Failure_scenarios"></a>Failure scenarios</h2>
@@ -94,12 +93,12 @@
 
 <tr class="b">
 <td>Machine A fails </td>
-<td> File monitor adapter on node B is automatically started  </td>
-<td> 1 Fix machine A<br />2 Use <b>epadmin install node</b> and <b>epadmin start node</b><br />3 Note that adapter remains running on node B </td>
+<td> State filter operator on node B is automatically started  </td>
+<td> 1 Fix machine A<br />2 Use <b>epadmin install node</b> and <b>epadmin start node</b><br />3 Note that the operator remains running on node B </td>
 <td> 1 No data loss<br />2 No service loss</td></tr>
 <tr class="a">
 <td>Machine B fails </td>
-<td> No impact to reading filesystem </td>
+<td> No impact </td>
 <td> 1 Fix machine B<br />2 Use <b>epadmin install node</b> and <b>epadmin start node</b> </td>
 <td> 1 No data loss<br />2 No service loss</td></tr>
 </tbody>
@@ -111,9 +110,9 @@
 <ul>
 
 <li>start nodes A &amp; B</li>
-<li>use <b>epadmin display adapter</b> to check the adapter status on both nodes ( file monitor adapter is started on node A only )</li>
+<li>use <b>epadmin display operator</b> to check the operator status on both nodes ( state filter operator is started on node A only )</li>
 <li>stop node A</li>
-<li>use <b>epadmin display adapter</b> to check the adapter status on both nodes ( file monitor adapter is now started on node B )</li>
+<li>use <b>epadmin display operator</b> to check the operator status on both nodes ( state filter operator is now started on node B )</li>
 <li>stop node B</li>
 </ul>
 <p><b>Warning:</b> This does not constitute an exhaustive non-functional test plan</p>
