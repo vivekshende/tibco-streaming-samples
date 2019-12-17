@@ -16,7 +16,7 @@ Sample categories:
 * [How to invoke Java from TIBCO&reg; Streaming 10.5.0 projects.](java)
 * [How to build Highly Available TIBCO&reg; Streaming 10.5.0 projects.](highavailability)
 * [How to use Docker in TIBCO&reg; Streaming 10.5.0 projects.](docker)
-
+*
 ---
 Copyright (c) 2018-2019, TIBCO Software Inc.
 
